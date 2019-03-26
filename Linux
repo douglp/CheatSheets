@@ -1,0 +1,523 @@
+* Get the rows only in the second file
+    * comm -13 <(sort -u 1553532004_LSTM_2) <(sort -u 1553539204_LSTM_2)
+* print duplicated item (in the column) 
+awk 'x[$1]++ == 1 { print $1 " is duplicated"}' FILENAME
+* print all fields but the first one
+    * awk '{first = $1; $1 = ""; print $0, first; }'
+* awk '{printf "%s",$1"\t"$2" "$3" "$4" "$5” “$6” “$7” “$8" "$9" "$10" ";for(i=12;i<=NF;i++)printf "%s ",$i;print ""}' legi_asn > legitimate_asn
+* awk '{printf "%s\t%s\n", $1, $2}' `seq 14 20`|awk '{
+    arr[$1]+=$2
+   }
+   END {
+     for (key in arr) printf("%s\t%s\n", key, arr[key])
+   }'     | sort -n -k2,2 -r >> aggregated
+* Kill a detached screen session:
+    * screen -X -S [session # you want to kill] quit
+* for i in `seq 5 10`; do screen -S $i.2 -d -m python secops825_rad_feeds.py /sjc-gsc1/rad-scratch/udir/gwang/secops_825/2_majestic_million_unprocessed.$i; done
+* curl -w "\nhttp code: %{http_code}\n" -x http://35.230.93.2:80 a34bab435729cd40e8a199b5abf048a06b.cc 
+    * (return both return code and response body)
+* screen session doesn’t work after a “su <user>”
+    * script /dev/null
+* NUMA zone reclaim mode:
+    * http://frosty-postgres.blogspot.com/2012/08/postgresql-numa-and-zone-reclaim-mode.html
+    * http://queue.acm.org/detail.cfm?id=2513149
+    * http://lse.sourceforge.net/numa/faq/
+    * numactl —interleave=all COMMAND
+* strings core | grep 'Nominum.*build’ (exact build info from a core file)
+* Yum install dsniff (tcpkill)
+* Rpm -qa 
+    * Or “yum list installed” to list all install packages on CentOS.
+* tc
+    * tc qdisc add dev eth0 root netem delay 300ms
+    * tc qdisc delete dev eth0 root netem delay 300ms
+    * tc qdisc show dev eth0
+    * tc qdisc add dev eth0 root netem loss 20% 
+* Bring down IPv6 address:
+    * sysctl -w net.ipv6.conf.all.disable_ipv6=1 (assign it to 0 to bring it back up)
+* cat /proc/<pid>/limits (to see all the limits, e.g. max fd)
+* man nom-link | col -b >~/link_man0630.txt (print man page to a file)
+* cat kafka-offsets/base-in/nom-dns-base-* |awk '{s+=$1} END {print s}'
+* force install a package:
+    * rpm -e --justdb --nodeps package name (uninstall it first)
+    * then install it with “yum install"
+* One common usage is  "ss -tmpie” which displays detailed information (including internal information) about TCP sockets, memory usage, and processes using the socket
+* strace -ff -s0 -p <pid> (to reduce the impact that slows down the process)
+* TCP timeout changes
+    * [root@CDNS1 ~]# echo 2 > /proc/sys/net/ipv4/tcp_retries2 
+    * [root@CDNS1 ~]# echo 1 > /proc/sys/net/ipv4/tcp_retries1
+    * It’d mean the tcp sessions time out in a minute or two instead of 15-20min
+* perf record -g -p <pid> (try to keep the perf data file smaller than 500M)
+* ip add list (to show all ip addresses)
+* grep -n 5 min0_rcode | cut -d":" -f1  |xargs -i sed -n '{} p' min0_test.query  > min0_refused
+    * min0_rcode has the 
+* Starting GUI from an SSH connection:
+    * http://www.cyberciti.biz/faq/x11-connection-rejected-because-of-wrong-authentication/
+* ssh-keygen -t rsa
+* Check ring buffer packet drop:
+    * [root@platform-perf-cacheserve-2 temp]# tc -s qdisc show dev eth2
+    * qdisc mq 0: root 
+    *  Sent 3235163319159 bytes 3946174569 pkt (dropped 0, overlimits 0 requeues 23524) 
+    *  rate 0bit 0pps backlog 0b 0p requeues 23524
+* routing cache is also known as the forwarding information base (FIB). The routing cache stores recently used routing entries in a fast and convenient hash lookup table, and is consulted before the routing tables. If the kernel finds a matching entry during route cache lookup, it will forward the packet immediately and stop traversing the routing tables.
+* Socket option memory is used in a few cases for storing extra structures relating to usage of the socket.
+These include:
+
+    Applying a BPF filter program to a socket
+    Applying certain crypto algorithms
+    31-bit socket syscall emulation (sendmsg() with flag MSG_CMSG_COMPAT)
+    Storing pointers to multicast group membership addresses (both IPv4 and IPv6)
+    MD5 protection of BGP sessions
+    IPv6 Anycast
+    Cloning a DCCPv6 socket
+    Accepting an IPv6-mapped IPv4 TCP connection on an IPv6 socket with TCPv6 options set
+    Remote Direct Memory Access (RDMA)
+
+Unless any of the above operations is returning "Out of Memory" or error 12 (ENOMEM) then there is most likely no advantage to increasing net.core.optmem_max beyond the default.
+* http://www.binarytides.com/linux-commands-monitor-network/
+* Process Stats:
+    * D Uninterruptible sleep (usually IO)
+    * R Running or runnable (on run queue)
+    * S Interruptible sleep (waiting for an event to complete)
+    * T Stopped, either by a job control signal or because it is being traced.
+    * W paging (not valid since the 2.6.xx kernel)
+    * X dead (should never be seen)
+    * Z Defunct ("zombie") process, terminated but not reaped by its parent.
+    * < high-priority (not nice to other users)
+    * N low-priority (nice to other users)
+    * L has pages locked into memory (for real-time and custom IO)
+    * s is a session leader
+    * l is multi-threaded (using CLONE_THREAD, like NPTL pthreads do)
+    * + is in the foreground process group 
+* RAID config checking:
+    * To check if there is a RAID card, I use: `lspci | grep -i raid`.
+    * To check the RAID configuration I use: `/opt/MegaRAID/storcli/storcli64 /c0 show`
+    * `storcli64` is not a standard command, and can be installed with `yum install storcli
+* perf tools:
+    * top -> atop or sampling using perf, or pidstat 
+* Replacement for netstat is ss. Replacement for netstat -r is ip route.
+*  - Replacement for netstat -i is ip -s link. Replacement for netstat -g is ip
+*  - maddr."
+* netstat -anup | grep cacheserve | grep ":53 “ (check whether the socket queue for this socket is filled)
+* netstat -npl
+* sending and trapping signals
+* alias of ports
+    * eforward : 2181
+    * cfinger: 2003
+    * XmlIpcRegSvc: 9092
+    * spcsdlobby: 2888
+    * ciphire-serv: 3888
+    * palace-3: 9994
+    * palace-6: 9997
+* du -x / |sort -rnb |more ( to find directories that are consuming large amount of space (with files) and sort by largest first)
+* check all the tcp connections to the machine: ss -tp 
+* service autofs restart (to fix nfs issues)
+* add the values in all the files:
+    * a=0
+    * for i in *; do a=$((a+`cat $i`)); done
+* Check port alias 
+    * /etc/services 
+* rpm -e —allmatches <package name> 
+    * to remove packages with multiple versions installed
+* rpm -e <package> returns "error: %preun(vantio-uar-soap-5.4.0.0.d-1.el6.x86_64) scriptlet failed, exit status 2"
+    * rpm -e statmon --noscripts
+* strace -p <pid> to know what functions are happening in real time
+* ps huH p 12885 | wc -l  (check how many threads a process had)
+* maven and java both in kelpie (maven-install and java/1.8.branch)
+    * export PATH=/udir/gwang/work/maven-install/head/target/bin:$PATH
+    * . /u0/home/gwang/work/java/1.8.branch/set_home.sh
+    * export JAVACMD=/u0/home/gwang/work/java/1.8.branch/target/jdk1.8.0_45/bin/java
+* Kill all “top” processes
+    * ps -ef|grep top|awk '{ print FNR " " $2 }' |xargs kill -9
+* /etc/security/limits.d/90-nproc.conf (for changing “max user process” ulimit -a value for users)
+* view log file:
+    * zcat file.gz | tail -250
+    * grep -A 5 “nom-hadoop-loader” /var/nom/messages
+* To find out how many file descriptors are in use by a user run the command:
+    * sudo lsof -u <username> 2>/dev/null | wc -l
+* ps auxwwe (check the full command line)
+* cat /proc/sys/kernel/threads-max (The limit on the total number of processes on the system)
+    * linux doesn’t have a separate limit for each process
+    * But it does have a limit for a single user (ulimit)
+* Check the RAID level or settings:
+    * dmraid -s
+    * dmraid -r  (yum install dmraid)
+* logical block addressing (LBA) is a common scheme used for specifying the location of blocks of data stored on computer storage devices, generally secondary storage systems such as hard disks. 
+* cpupower  
+    * modprobe acpi-cpufreq
+    * yum install cpupowerutils
+    * cpupower --cpu 0-7 frequency-info
+    * for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do cat $CPUFREQ; done
+    * cpupower --cpu 0-7 frequency-set --governor powersave
+    * for governor_conf in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do  echo performance > “$governor_conf"; done
+* perf tool only workdsperf record -p <pid> -g 
+* on linux 2.6.3x and after
+    * perf report --stdio < <file> 
+* DPI (Deep Packet Inspection)
+* Stateful Packet Inspection 
+* check if hyper threading is supported in the CPU chips, check the flag line of “lscpu”. The “ht” flag will be there even if hyper threading is turned off. 
+* how to disable hyper threading for intel xeon E5 CPU (through IPMI): BIOS->Advanced->Hyper-threading (disabled)
+* how to check if hyper threading is enabled or not
+    * grep -o '^flags\b.*: .*\bht\b' /proc/cpuinfo | tail -1
+* kernel line limiting the number of cores: maxcpus=8
+* P-states and C-states:
+    * For a while now, CPUs have had the ability to transition frequencies (P-states) based on load. This is the called a CPU governor, and the user interface is the cpuspeed service.
+        * two primary reasons for P-states, one is to reduce the peak thermal load, and the other is to save power
+        * [root@localhost cpufreq]# ls /lib/modules/2.6.32-358.el6.x86_64/kernel/arch/x86/kernel/cpu/cpufreq/
+acpi-cpufreq.ko  mperf.ko  p4-clockmod.ko  pcc-cpufreq.ko  powernow-k8.ko  speedstep-lib.ko
+        * [root@localhost cpufreq]# cpupower frequency-info --governors
+analyzing CPU 0:
+userspace performance
+        * CPU freq governor types
+            * cpufreq_performance
+            * cpufreq_powersave
+            * cpufreq_ondemand
+            * cpufreq_userspace 
+                * allows userspace programs (or any process running as root) to set the frequency
+                * normally used in conjunction with the cupped daemon
+            * cpufreq_conservative
+    * For slightly less time, CPUs have been able to scale certain sections of themselves on or off…voltages up or down, to save power. This capability is known as C-states. The downside to the power savings that C-states provide is a decrease in performance, as well as non-deterministic performance outside of the application or operating system control.
+    * https://access.redhat.com/solutions/68665 (check c-state)
+* for PID in ps -C vantio | tail -n +2 | cut -c1-5; do
+* top -b -p 6314 |grep 6314 (to print CPU usage every second)
+* To turn off CFS (Completely Fair Scheduler)
+As root, run the command
+echo "0" > /proc/sys/kernel/sched_features
+* My understanding is that we agreed to setup ktune consistant with RHEL5;
+1) set cpuspeed governors to "performance"
+2) set io elevator=deadline
+3) reduce scheduler quantum to match RHEL5
+echo 10000000 > /proc/sys/kernel/sched_min_granularity_ns
+echo 15000000 > /proc/sys/kernel/sched_wakeup_granularity_ns
+4) enable transparent hugepages - if not set.
+echo always >/sys/kernel/mm/redhat_transparent_hugepage/enabled
+5) adjust dirty ratio back to 40
+echo 40 > /proc/sys/vm/dirty_ratio
+* 2 performance related profiles in tuned/ktune at the moment (see man tuned-adm)
+    * throughput-performance 
+    * latency-performance
+* (IPv6 packets checking, equivalent to netstat -su for ipv4) grep Udp6 /proc/net/snmp6
+Udp6InDatagrams 116266238
+Udp6NoPorts 104509
+Udp6InErrors 245458
+Udp6OutDatagrams 116266725
+* netstat -pan |grep cacheserve (output)
+    * udp 99360 0 64.89.238.75:5364 0.0.0.0:* 25943/cacheserve
+        * protocol udp
+        * Recv-Q: 99360
+        * Send-Q: 0
+        * Local Address: 64.89.238.75:5364
+        * Foreign Address: 0.0.0.0:* (accept connections from all foreign address, all ports)
+        * PID/Program name: 25943/cacheserve
+* rpm —rebuilddb (rpm rebuild database)
+* check file system type: df -T
+    * ext4 (journaling process jbd2/sda3-8)
+* The Hardware Abstraction Layer (HAL) is a piece of software implemented to function between the Linux kernel and the underlying system hardware. It hides differences in hardware from the kernel to enable it to run on a variety of hardware platforms. 
+* yum install wireshark (installed binary is called tshark)
+* The “u area” contains information describing the process that needs to be assessible only when the process is executing. the important fields are:
+    * a pointer to the process table slot of the currently executing process
+    * parameters of the current system call, return values and error codes
+    * file descriptors for all open files
+    * internal I/O parameters
+    * current directory and current root
+    * process and file size limit
+* process:
+    * process 0 becomes the swapper process, after forking a child process
+    * process 1, known as init, is the ancestor of every other process in the system
+    * because a process in the UNIX system can execute in two modes, kernel or user, it uses a separate stack for each mode. 
+* file system layout
+    * boot block
+    * super block 
+        * the state of the file system - how large it is, how many files it can store, where to find free space on the file system, and other info
+    * inode list
+        * the root indoor of the file system is by which the directory structure of the file system is accessible after elution of the mount system call. 
+    * data blocks
+* the kernel contains three data structures:
+    * in-core inode table
+    * file table 
+    * user file descriptor table
+* add user
+    * /etc/passwd
+    * /etc/shadow
+    * /etc/group
+    * to troubleshoot, "su -l gwang" as root
+* (Vanitio using more CPU on rhel5 than rhel6, VANTIO-1470) Googling suggests that cpuspeed is not the only thing that needs to be done. People also suggest changing the CPU governor policy in the kernel. Our own RHEL 6 systems are NOT running cpuspeed, but still have significantly reduced clocks due to the other kernel stuff.
+They should send us the contents /proc/cpuinfo so we can see if scaling is still in effect.
+
+You can switch the kernel to performance by:
+
+for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do [ -f $CPUFREQ ] || continue; echo -n performance > $CPUFREQ; done
+
+Note this has to be done on every boot. I'd suggest doing this by hand once, as that will tell them whether the CPU effect is from power management or something else.
+
+When I try this on our performance machine, the "cpu MHz" field goes from 1200 to 2900.
+
+You can restore the prior power setting by rebooting, or by running the command above and changing "performance" to "ondemand".
+* set automatic ssh without no password
+    * chmod 700 .ssh
+    * chmod 600 .ssh/*
+    * restorecon -R -v /root/.ssh’ (set up automatic ssh key-less login)
+    * also make sure your home directory doesn’t have group write permissions. 
+    * tail /var/log/secure for detailed information, or ssh -vvv 
+    * to troubleshoot: run "/usr/sbin/sshd -ddd” on the server side, and “ssh -vvv” on the client side. 
+* system tap: stap nettop.stp (with CacheServe running at 12 threads, got error ERROR: probe overhead exceeded threshold, will need to rebuild kernel.)
+* awk '{ print FNR " " $0 }’ file (add line number as the first column of the file)
+* (ps -ef output) quagga 2515 1 0 Nov18 ? 00:01:42 ospfd -d -A 127.0.0.1 -f /etc/quagga/ospfd.conf
+* mpstat -P ALL 1 (show CPU statistics)
+* irqbalance:
+    * for i in `seq 166 206`; do cat /proc/irq/$i/smp_affinity; done (166-206 acquired from /proc/interrupts, search for eth2)
+    * for i in `seq 166 206`; do let "a=$i-166"; let "b=2**$a"; let "c=`printf '%x' $b`"; echo "echo $c > /proc/irq/$i/smp_affinity"; done
+    * find out irqbalance version: yum whatprovides irqbalance (usually one version for a specified OS version)
+* check config options:
+    * cat /boot/config-2.6.32-431.el6.x86_64 | grep HOTPLUG
+* pidstat -p <process id> 1 (print the CPU usage of a process every second)
+* pidstat -p 26873 1 -r (print the memory usage of a process every second)
+    * to install pidstat: yum -y install sysstat
+* changes his MAC address with the Linux command ifconfig eth1 hw ether 53:65:6E:64:61:69,
+* Between IP stack and NIC, there are driver queue, BQL (Byte Queue Limit) and QDisc (Queuing Discipline main concepts: QDiscs, class, filter)
+    * details for each QDisc (e.g. man tc htb)
+    * pfifo_fast QDisc is the default (using TOS bit in IP header)
+    * HTB (Hierarchical Token Bucket) QDisc (QDiscs supporting multiple classes are called classful Qdiscs)
+    * TCP small queue, a feature introduced in Linux 3.6.0, has a limit on the bytes in QDisc and driver queue
+    * SFQ (Stochastic Fairness Queueing) and Fair Queueing with Controlled Delay (fq_codel) Qdiscs have a queue per network flow, hence can solve the transport layer flood problem.
+        * txqueuelen is only used as a default queue length for SOME of the queueing disciplines, specifically pfifo_fast, sch_fifo, sch_gred, sch_htb, sch_plub, sch_sfb, sch_teql,
+            * The “limit” argument on the tc command line overrides the txqueuelen default. 
+            * to set txqueuelen: 
+ip link set txqueuelen 500 dev eth0
+
+    * check driver queue size: ethtool -g eth0
+    * check TSO, UFO, GSO settings: ethtool -k eth0
+    * check current BQL (I don’t have one on my machine): 
+/sys/devices/pci0000:00/0000:00:14.0/net/eth0/queues/tx-0/byte_queue_limits
+
+* tcpdump src 2.3.4.5
+tcpdump -i eth0 dst 2.3.4.5
+Check TCP connections: netstat -al | grep 9553 | wc -l
+* Neither of these errors (packets to unknown port, and packet receive errors) are from the NIC driver level. They are from the udp protocol level. However, sometimes if an application buffer fills, the driver's buffer may then also start to fill. To also check for NIC/driver errors, check these outputs:
+# ifconfig <interface>
+Look at the line starting with "RX packets”
+# ethtool -S <interface>
+Review lines starting with "rx”
+http://h20566.www2.hp.com/portal/site/hpsc/template.PAGE/public/kb/docDisplay?docId=mmr_kc-0102153&ac.admitted=1412791099353.876444892.199480143
+lsof -a -i4UDP:<port> -p <process id> (check the number of UDP threads)
+[root@spt-rhel5-64-c ehnizdo]# netstat -ltpna | grep FIN_WAIT1 | more
+tcp 0 44 64.89.231.30:60658 58.221.28.83:53 FIN_WAIT1 -
+tcp 0 44 64.89.231.30:58548 117.27.239.5:53 FIN_WAIT1 -
+tcp 0 44 64.89.231.30:58551 117.27.239.5:53 FIN_WAIT1 -
+tcp 0 44 64.89.231.30:58545 117.27.239.5:53 FIN_WAIT1 -
+tcp 0 44 64.89.231.30:58557 117.27.239.5:53 FIN_WAIT1 -
+tcp 0 44 64.89.231.30:58552 117.27.239.5:53 FIN_WAIT1 -
+tcp 0 44 64.89.231.30:58554 117.27.239.5:53 FIN_WAIT1 -
+sysctl -w net.core.rmem_default=1048576
+
+
+This will set the buffer to 1M
+check which CPU cores a process is using:top -H -p {PROC_ID}
+* then pressing f to go into field selection, j to enable the CPU core column and enter to display.
+rpm -qa|grep gd
+netstat can check the TCP connection status, for vantio/cacheserve, only the connections in state ESTABLISHED are counted as TCP recursions.
+https://access.redhat.com/site/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Performance_Tuning_Guide/appe-Red_Hat_Enterprise_Linux-Performance_Tuning_Guide-Tool_Reference.html
+http://yuzhang2.blogspot.com/2011/12/network-interrupts-handling-and-monitor.html
+to see all the interrupts: sar -I SUM -P ALL
+to see pkg by interface: netstat -i
+to see which thread is assigned to which cpu: ps -p <pid> -L -o pid,tid,psr,pcpu
+to see which thread this process can set affinity to: taskset [-c] -p <pid>
+to see cpu utilization per core: mpstat -P ALL 1
+http://dak1n1.com/blog/7-performance-tuning-intel-10gbe
+In the kernel command line (/etc/grub.conf), add "nohz=off” (to disable running ksoftirqd)
+* install kernel-debug-info: http://fendertech.blogspot.com/2013/04/centos-install-kernel-debuginfo.html
+* Solution: set “enable=0” in the /etc/yum.repos.d/ file that has the wrong mirror url.
+[root@platform-perf-cacheserve-4 cacheserve]# yum install mock
+* Loaded plugins: fastestmirror
+Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+Loading mirror speeds from cached hostfile
+http://mirror.centos.org/centos/6/os/SRPMS/repodata/repomd.xml: [Errno 14] PYCURL ERROR 22 - "The requested URL returned error: 404 Not Found"
+* Trying other mirror.
+Trying other mirror.
+Error: Cannot retrieve repository metadata (repomd.xml) for repository: base-SRPMS. Please verify its path and try again
+Error: Cannot retrieve repository metadata (repomd.xml) for repository: base-SRPMS. Please verify its path and try again
+Install rpm-build on centos:
+* rpmbuild —showrc (show if it is installed already)
+* yum install rpm-build
+kernel command line (/proc/cmdline)
+
+dmesg | grep -i numa (check numa configuration)
+dmesg | grep -i scsi (check hard disk information)
+
+check memory speed: dmidecode --type 17  | grep -i speed
+
+lspci -vmm (check pci info, for pci of eth0, search eth0 in the output)
+
+CONFIG_NO_HZ/Dynamic Ticks, which will be found in the Linux 2.6.21 kernel. The option has been available as a patch for quite a while, but not until Linux 2.6.21-rc1 had it been merged into the upstream kernel. When enabled, there will only be timer ticks when they are needed. The end-user benefit is cooler-running processors and increased power savings. We have investigated this change with a notebook and desktop computer.
+
+On the sending side, TSO (TCP Segmentation Offload)/UFO(UTP Fragmentation Offload)/GSO, on the receiving side, GRO allows the NIC driver to combine received packets into a single large packet which is then passed to the IP stack.
+
+netstat -vaunp (check the processes using the socket) dtrx - figures out if a tar ball contains a directory or not
+
+lsof +D /path (list all open files in the current directory)
+
+Do “df .” in the directory to tell the file system. Anything “hog” or with colon in it, or ./net, means NFS.
+
+lspci to tell if linux is running on VM
+
+rpm -qlp $PACKAGE_FILENAME
+will list the contents of an RPM; run this on the release
+versus the nightlies, and you'll see the difference.
+
+rpm -q -g Nominum (to check the installed Nominum packages)
+
+
+dnssectest.net on util-1 couldn’t start because of “out of memory”, solved by:
+
+echo 1 > /proc/sys/vm/overcommit_memory
+
+ps -e -o pid,vsz,comm= | sort -n -k 2
+
+sort processes by memory usage
+
+gdb with core dump:
+
+You just need a binary (with debugging symbols included) that is identical to the one that generated the core. Then you can run gdb path/to/the/binary path/to/the/core to debug it.
+
+When it starts up, you can use bt (for backtrace) to get a stack trace from the time of the crash.
+
+Why crontab doesn’t work?
+* tip: in a shell script, source ~/.profile and ~/.bashrc, then run the cronjob script. 
+
+http://askubuntu.com/questions/23009/reasons-why-crontab-does-not-work
+
+The crontab file:
+
+PYTHONPATH=$PYTHONPATH:/usr/local/nombuild/default/lib/python2.7/site-packages/:/usr/local/nombuild/default/lib/python27.zip:/usr/local/nombuild/default/lib/python2.7/:/usr/local/nombuild/default/lib/python2.7/plat-linux2/:/usr/local/nombuild/default/lib/python2.7/lib-tk/:/usr/local/nombuild/default/lib/python2.7/lib-old/:/usr/local/nombuild/default/lib/python2.7/lib-dynload/:/udir/gwang/perftools/:/udir/gwang/perftools/lib/
+* 3 * * * /usr/local/bin/bash --login -c /udir/gwang/perftools/cacheserve/resperf_realworld.py > ~/log
+
+Cron passes a minimal set of environment variables to your jobs. To see the difference, add a dummy job like this:
+
+* * * * * env > /tmp/env.output
+
+https://access.redhat.com/site/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Performance_Tuning_Guide/s-network-common-queue-issues.html   (linux tuning: common queuing/frame loss issues)
+
+http://h20565.www2.hp.com/portal/site/hpsc/template.PAGE/public/kb/docDisplay?docId=mmr_kc-0102153&ac.admitted=1397748948763.876444892.492883150
+
+Questions/Symptoms
+
+GOAL:To understand and attempt to resolve udp errors seen in netstat -su.
+
+SYMPTOM:Example: netstat -su partial output.  Udp: 79258313 packets received 208531 packets to unknown port received. <<<< 1536 packet receive errors <<<< 85514 packets sent
+
+Cause
+
+CAUSE:A lot of this text is from an elevation regarding this issue:  1. The errors reported as UDP packet receive errors originate from kernel counter UDP_MIB_INERRORS and this counter is increased in two cases:  - corrupted packets (incorrect headers or checksum)  - full RCV buffer size
+
+2. Enable UDP fragmentation offload on all NICs involved.
+
+# ethtool -K eth? ufo on
+
+Turn off checksumming.
+
+# ethtool -K eth? rx off
+
+# ethtool -K eth? tx off
+
+check current NIC settings:
+
+ethtool -k eth0
+
+http://stackoverflow.com/questions/2289830/how-to-monitor-linux-udp-buffer-available-space  Check UDP receive buffer usage (cat /proc/net/udp, check the rx_queue column)
+
+Also for buffer usage: netstat -c --udp -an (Recv-Q will be that data which has not yet been pulled from the socket buffer by the application.)
+
+ /sbin/ifconfig eth0 txqueuelen 10000
+
+Install perf on centOS 6.5: yum install perf
+
+ethtool -i eth0 (check network card driver/firmware info)
+
+/sbin/ethtool -n eth0 rx-flow-hash udp4
+
+yum install lshw
+
+lshw -class network (to check network card info)
+
+Find out network card speed: ethtool eth0 | grep Speed
+
+Add secondary ipv6 addresses to linux
+
+/sbin/ifconfig eth2 inet6 add 2620:0:b60:304:80A6:1375:2F5B:469D/64
+
+check the ipv6 addresses added:
+
+cat /etc/sysconfig/network-scripts/ifcfg-eth2, or
+/sbin/ifconfig
+
+lscpu to check the number of CPUs and threads per core
+
+/etc/security/limits.conf  (limit settings)
+
+sysctl -a (to check the current settings)
+sysctl -p (to load settings)
+
+ps -ef | grep tcpdump | awk '{print $2}' | xargs kill
+tcpdump -i eth0 udp port 53 (dump dns packets)
+
+Install numpy
+yum install mock;
+useradd -s /sbin/nologin mockbuild
+rpm -ivh python-2.6.6-52.el6.src.rpm
+yum install python-devel
+
+copy the numpy source directory to where root has read/write access:
+
+python setup.py build
+python setup.py install
+
+SUDO without password:
+
+Open terminal window and type:
+
+sudo visudo
+
+In the bottom of the file, type the follow:
+
+username ALL=(ALL) NOPASSWD: ALL
+
+These commands double the default CentOS 6.3 socket buffer sizes:
+
+sysctl -w net.core.rmem_default=458752
+sysctl -w net.core.wmem_default=458752
+sysctl -w net.core.rmem_max=458752
+sysctl -w net.core.wmem_max=458752
+
+https://wwwx.cs.unc.edu/~sparkst/howto/network_tuning.php
+
+This command changes the hashing on the network card:
+
+/sbin/ethtool -N eth0 rx-flow-hash udp4 sdfn
+
+UDP over IPV4 flows use these fields for computing Hash flow key:
+IP SA (devices that announce one or more services)
+IP DA (devices that cache services information)
+L4 bytes 0 & 1 [TCP/UDP src port]
+L4 bytes 2 & 3 [TCP/UDP dst port]
+
+https://www.kernel.org/doc/Documentation/networking/scaling.txt
+* To check whether RSS is enabled: check if there are multiple queues for the NIC (/proc/interrupts)
+* Receive Packet Steering (RPS) is logically a software implementation of RSS.(Receive Side Scaling). RPS and RSS are mutually exclusive, RPS is usually disabled by default. 
+    * If there are fewer hardware queues than CPUs, then RPS might be beneficial if the rps_cpus for each queue are the ones that share the same memory domain as the interrupting CPU for that queue.
+RFS (Receive Flow Steering) extension of RPS, updates RPS hash table to deliver packets to the CPU where application running on.
+
+/proc/cpuinfo (check hyper threading info, number of different physical id multiplied by cpu cores for the number of real cores)
+
+nproc  (for the number of cores)
+
+taskset <affinity mask> -p <process>  (limit the cores used by process)
+
+Use the following command to list the contents of the tar file:
+
+$ tar -ztvf file.tar.gz
+2. print from command line (using bw-3 printer):
+     a2ps --media=letter -1 -Pbw-3 name-of-file
+     enscript -l -Pbw-3 name-of-file
+2.    [root@gwang-centos63 ~]# /etc/init.d/cacheserve status
+Nominum Vantio CacheServe dead but sub sys locked
+     solution: delete this lock file /var/lock/subsys/cacheserve
